@@ -1,5 +1,4 @@
 import os
-from typing import Any
 
 import requests
 from dotenv import load_dotenv
@@ -13,32 +12,26 @@ OPENWEATHERMAP_API = os.getenv("OPENWEATHERMAP_API")
 DICTIONARY_API = os.getenv("DICTIONARY_API")
 
 
-def require_env(name: str, value: str | None) -> str:
+def require_env(name, value):
     if not value:
         raise RuntimeError(f"Environment variable {name} is required")
     return value
 
 
-def request_json(url: str, params: dict[str, str], timeout: int = 10) -> Any:
-    response = requests.get(url=url, params=params, timeout=timeout)
-    response.raise_for_status()
-    return response.json()
-
-
-def get_lat_and_lon() -> tuple[float, float]:
+def get_lat_and_lon():
     url = "http://api.openweathermap.org/geo/1.0/direct"
     params = {
         "q": CITY_NAME,
         "appid": require_env("OPENWEATHERMAP_API", OPENWEATHERMAP_API),
     }
 
-    data = request_json(url, params)
+    data = requests.get(url=url, params=params, timeout=10).json()
     if not data:
         raise RuntimeError(f"City not found: {CITY_NAME}")
     return data[0]["lat"], data[0]["lon"]
 
 
-def get_city_data(lat: float, lon: float) -> dict[str, Any]:
+def get_city_data(lat, lon):
     url = "https://api.openweathermap.org/data/2.5/weather"
     params = {
         "lat": str(lat),
@@ -48,10 +41,11 @@ def get_city_data(lat: float, lon: float) -> dict[str, Any]:
         "units": "metric",
     }
 
-    return request_json(url, params)
+    data = requests.get(url=url, params=params, timeout=10).json()
+    return data
 
 
-def get_word_info(word: str) -> Any:
+def get_word_info(word):
     url = (
         f"https://www.dictionaryapi.com/api/v3/"
         f"references/collegiate/json/{word}"
@@ -60,7 +54,8 @@ def get_word_info(word: str) -> Any:
         "key": require_env("DICTIONARY_API", DICTIONARY_API),
     }
 
-    return request_json(url, params)
+    data = requests.get(url=url, params=params, timeout=10).json()
+    return data
 
 
 if __name__ == "__main__":

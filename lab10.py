@@ -20,8 +20,6 @@ COMMANDS = {
     "стоп": "stop",
 }
 
-WEATHER_ACTIONS = {"weather", "temperature", "pressure", "humidity"}
-
 
 def record_audio(path: Path, duration: int, sample_rate: int) -> None:
     print("Говорите...")
@@ -44,12 +42,12 @@ def load_weather() -> dict:
 def answer_command(command: str) -> bool:
     action = COMMANDS.get(command)
 
-    if action == "stop":
-        return False
     if not command:
         print("Вы ничего не сказали.")
         return True
-    if action not in WEATHER_ACTIONS:
+    if action == "stop":
+        return False
+    if not action:
         print("Неизвестная команда.")
         return True
 
