@@ -20,6 +20,8 @@ COMMANDS = {
     "стоп": "stop",
 }
 
+WEATHER_ACTIONS = {"weather", "temperature", "pressure", "humidity"}
+
 
 def record_audio(path: Path, duration: int, sample_rate: int) -> None:
     print("Говорите...")
@@ -39,8 +41,19 @@ def load_weather() -> dict:
     return get_city_data(lat, lon)
 
 
-def answer_command(command: str, weather_data: dict) -> bool:
+def answer_command(command: str) -> bool:
     action = COMMANDS.get(command)
+
+    if action == "stop":
+        return False
+    if not command:
+        print("Вы ничего не сказали.")
+        return True
+    if action not in WEATHER_ACTIONS:
+        print("Неизвестная команда.")
+        return True
+
+    weather_data = load_weather()
 
     if action == "weather":
         print(weather_data["weather"][0]["description"])
@@ -50,12 +63,6 @@ def answer_command(command: str, weather_data: dict) -> bool:
         print(weather_data["main"]["pressure"])
     elif action == "humidity":
         print(weather_data["main"]["humidity"])
-    elif action == "stop":
-        return False
-    elif not command:
-        print("Вы ничего не сказали.")
-    else:
-        print("Неизвестная команда.")
 
     return True
 
@@ -80,8 +87,7 @@ def main() -> None:
             command = transcribe(model, audio_path)
             print(f"Распознано: {command or 'пусто'}")
 
-            weather_data = load_weather()
-            if not answer_command(command, weather_data):
+            if not answer_command(command):
                 break
 
             time.sleep(args.pause)
