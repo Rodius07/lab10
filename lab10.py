@@ -1,6 +1,5 @@
 import os
 import time
-from pathlib import Path
 
 import sounddevice as sd
 from faster_whisper import WhisperModel
@@ -67,7 +66,7 @@ def main():
     sample_rate = 16000
     model_name = "small"
     pause = 1.5
-    audio_path = Path("my_record.wav")
+    audio_path = "my_record.wav"
     model = WhisperModel(model_name, device="cpu", compute_type="int8")
 
     try:
@@ -81,7 +80,7 @@ def main():
 
             time.sleep(pause)
     finally:
-        if audio_path.exists():
+        if os.path.exists(audio_path):
             os.remove(audio_path)
 
 
